@@ -9,6 +9,13 @@ Your mission is to use this project as a base to implement a demo screen using o
 
 Please implement a "demo screen for a new user experience controlled by eye gaze."
 The Messay Development Kit is already defined in `libs.versions.toml`. Please use this library's API to create a screen that meets the following requirements.
+We will provide a username and token to enable the Messay Development Kit; please add them to `local.properties` as follows:
+
+local.properties
+```
+maven.messay.username=your-username
+maven.messay.password=your-token
+```
 
 ### Requirements
 
@@ -16,8 +23,7 @@ The Messay Development Kit is already defined in `libs.versions.toml`. Please us
    Properly initialize the SDK within `composeApp` and ensure that gaze data (coordinates, detection events, etc.) can be retrieved.
 
 2. Interactive UI:
-   Implement at least one UI element that reacts to eye or face movements.
-   Examples: A pointer representing the gaze point, a button that reacts to blinking, a display showing the distance between the face and the phone, etc.
+   Implement a screen in App.kt using `MdkTarget.EyeCloseHold` for an action triggered by closing and then opening your eyes, and `MdkTarget.FaceMovement` for pointer control.
 
 3. Platforms:
    Android: Required. Must run on an emulator or a physical device.

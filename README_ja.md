@@ -9,6 +9,12 @@ Messayのコーディング試験へようこそ！ このリポジトリは、K
 
 「視線で操作する新しいユーザー体験のデモ画面」 を実装してください。
 `libs.versions.toml`には既に Messay Development Kit が定義されています。このライブラリのAPIを使用して、以下の要件を満たす画面を作成してください。
+弊社の方から、Messay Development Kitを有効にするための、ユーザー名とトークンをお送りするので、`local.properties`に以下のように追記してください。
+local.properties
+```
+maven.messay.username=your-username
+maven.messay.password=your-token
+```
 
 ### 必須要件（Requirements）
 
@@ -16,8 +22,7 @@ Messayのコーディング試験へようこそ！ このリポジトリは、K
    `composeApp` 内でSDKを適切に初期化し、視線データ（座標や検知イベントなど）を取得できる状態にすること。
 
 2. インタラクティブなUI:
-   目や顔のうごきに反応するUI要素を少なくとも1つ実装してください。
-   例: 注視点を表すポインター、まばたきで反応するボタン、顔とスマホと距離の表示など。
+   `MdkTarget.EyeCloseHold`と`MdkTarget.FaceMovement`を使って、目を一定時間とじてから開くことで発火する操作と、顔の動きを使ったポインターの操作を、１つの画面（`App.kt`）に実装してください。
 
 3. プラットフォーム:
    Android: 必須。エミュレータまたは実機で動作すること。
