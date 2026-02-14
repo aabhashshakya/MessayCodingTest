@@ -1,6 +1,6 @@
 import java.util.Properties
 
-rootProject.name = "MessayCodingTest"
+rootProject.name = "MessayDuckHunt"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

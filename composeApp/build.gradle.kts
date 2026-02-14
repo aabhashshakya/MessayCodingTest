@@ -29,6 +29,14 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
+
+            //COIL
+            implementation("io.coil-kt:coil-compose:2.5.0")
+            implementation("io.coil-kt:coil-gif:2.7.0")
+
+            //EXOPLAYER for audio playback
+            implementation("androidx.media3:media3-exoplayer:1.3.1")
+
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -50,11 +58,11 @@ kotlin {
 }
 
 android {
-    namespace = "jp.co.ndk_group.messay_coding_test"
+    namespace = "jp.co.ndk_group.messay_duck_hunt"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "jp.co.ndk_group.messay_coding_test"
+        applicationId = "jp.co.ndk_group.messay_duck_hunt"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -68,6 +76,7 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {

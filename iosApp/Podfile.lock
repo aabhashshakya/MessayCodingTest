@@ -1,0 +1,31 @@
+PODS:
+  - MediaPipeTasksCommon (0.10.14)
+  - MediaPipeTasksVision (0.10.14):
+    - MediaPipeTasksCommon (= 0.10.14)
+  - onnxruntime-c (1.14.0)
+  - onnxruntime-objc (1.14.0):
+    - onnxruntime-objc/Core (= 1.14.0)
+  - onnxruntime-objc/Core (1.14.0):
+    - onnxruntime-c (= 1.14.0)
+
+DEPENDENCIES:
+  - MediaPipeTasksCommon (~> 0.10.14)
+  - MediaPipeTasksVision (= 0.10.14)
+  - onnxruntime-objc (= 1.14.0)
+
+SPEC REPOS:
+  trunk:
+    - MediaPipeTasksCommon
+    - MediaPipeTasksVision
+    - onnxruntime-c
+    - onnxruntime-objc
+
+SPEC CHECKSUMS:
+  MediaPipeTasksCommon: 5660099c2dd81f7ac4a7a5f51055785ead8e0e64
+  MediaPipeTasksVision: 0fac0db83c0b45e4d7811a9227be5e571403cf83
+  onnxruntime-c: 1f5923e555122d12239a1173229d6c5e8a0afd3e
+  onnxruntime-objc: d4542b141e06b3ecb98b36f226ef47db0d9add36
+
+PODFILE CHECKSUM: 39f2581ae02103852119cc9142f5d75504d327c5
+
+COCOAPODS: 1.16.2
