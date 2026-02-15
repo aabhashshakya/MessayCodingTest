@@ -20,14 +20,17 @@ I've implemented a hands-free Duck Hunt game (inspired from the classic Duck Hun
 - **Progressive Difficulty**: Ducks get harder to hit with each hit
 - **Multiple Levels**: 5 levels with increasing baseline difficulty
 - **Statistics Tracking**: Score, accuracy, hits, misses
+##
 
 ### Things to note
 **The iOS environment is set up and the app runs on the *Simulator*, but it crashes when accessing camera features after granting Camera Permission. The crash appears to originate from the MDK SDK, likely due to the simulator’s lack of camera support. I don’t currently have a physical iOS device to test this on real hardware.**
-****So I cannot guarantee if it runs properly on iOS but I am hopeful that it does.****
 
+****`So I cannot guarantee if it runs properly on iOS but I am hopeful that it does.`****
+
+## 
 **Thank you for reviewing my submission!** 
 
-I thoroughly enjoyed building this project and exploring the possibilities of eye-tracking controls in games. The Messay MDK is a powerful tool, and I'm excited to see what else can be built with it!
+I thoroughly enjoyed building this project and exploring the possibilities of eye/face tracking controls in games. The Messay SDK is a powerful tool, and I'm excited to see what else can be built with it!
 
 
 
