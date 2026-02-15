@@ -10,7 +10,7 @@ I've implemented a hands-free Duck Hunt game (inspired from the classic Duck Hun
 - **Face Movement Control**: Reticle follows face position using `MdkTarget.FaceMovement`
 - **Eye-Based Shooting**: Quick eye close/blink triggers shots using `MdkTarget.EyeCloseHold` (50ms)
 - **MVI Architecture**: Clean separation of concerns with Intent-State-Effect pattern
-- **Compose Multiplatform**: Shared UI and logic, with platform-specific logic for `GifPlayer`, `Audio SoundPool` and `Back Press Handling`.
+- **Compose Multiplatform**: Shared UI and logic, with platform-specific logic for `GifPlayer`, `Audio SoundPool`, `Permission Handling`, `Toast Manager` and `Back Press Handler`.
 - **Feedback**: Visual, haptic and sound effects upon various game events such as `Duck Hit`, `Gunshot`, `Duck Miss`, etc.
 
 ### Extra Features 
@@ -21,8 +21,9 @@ I've implemented a hands-free Duck Hunt game (inspired from the classic Duck Hun
 - **Multiple Levels**: 5 levels with increasing baseline difficulty
 - **Statistics Tracking**: Score, accuracy, hits, misses
 
-### Limitations
-**The iOS environment is set up and the app runs on the simulator, but it crashes when accessing camera features. The crash appears to originate from the MDK SDK, likely due to the simulator’s lack of camera support. I don’t currently have a physical iOS device to test this on real hardware. So I currently have no idea if it runs properly on iOS.**
+### Things to note
+**The iOS environment is set up and the app runs on the *Simulator*, but it crashes when accessing camera features after granting Camera Permission. The crash appears to originate from the MDK SDK, likely due to the simulator’s lack of camera support. I don’t currently have a physical iOS device to test this on real hardware.**
+****So I cannot guarantee if it runs properly on iOS but I am hopeful that it does.****
 
 **Thank you for reviewing my submission!** 
 
