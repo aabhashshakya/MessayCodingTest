@@ -1,32 +1,15 @@
 package jp.co.ndk_group.messay_duck_hunt
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.co.ndk_group.messay_duck_hunt.constants.GameConfig
 import jp.co.ndk_group.messay_duck_hunt.domain.models.GameState
@@ -41,6 +24,9 @@ import jp.co.ndk_group.mdk.MdkView
 import jp.co.ndk_group.mdk.entity.MdkSide
 import jp.co.ndk_group.messay_duck_hunt.core.sound.createAudioPlayer
 import jp.co.ndk_group.messay_duck_hunt.core.utils.BackHandler
+import jp.co.ndk_group.messay_duck_hunt.core.utils.PermissionState
+import jp.co.ndk_group.messay_duck_hunt.core.utils.getToastManager
+import jp.co.ndk_group.messay_duck_hunt.core.utils.rememberCameraPermissionState
 import jp.co.ndk_group.messay_duck_hunt.ui.dialogs.QuitGameDialog
 import jp.co.ndk_group.messay_duck_hunt.ui.screens.MenuScreen
 import jp.co.ndk_group.messay_duck_hunt.ui.screens.RoundCompleteScreen
@@ -55,6 +41,21 @@ fun App() {
     val viewModel: DuckHuntViewModel = viewModel { DuckHuntViewModel() }
     val state = viewModel.state
     val hapticFeedback = LocalHapticFeedback.current
+
+    // Camera permission handling
+    val cameraPermissionState = rememberCameraPermissionState()
+    val toastManager = getToastManager()
+
+    // Auto-request permission on at app start
+    LaunchedEffect(Unit) {
+        // Refresh permission state when app comes to foreground
+        cameraPermissionState.refreshPermissionState()
+
+        //automatically request permission if not determined
+        if (cameraPermissionState.permissionState.value == PermissionState.NOT_DETERMINED) {
+            cameraPermissionState.requestPermission()
+        }
+    }
 
     //Dialog state
     var showQuitDialog by remember { mutableStateOf(false) }
@@ -103,65 +104,84 @@ fun App() {
         val screenHeight = maxHeight
 
         Box(modifier = Modifier.fillMaxSize()) {
-            // Hidden MDK camera view
-            MdkView(
-                MdkOptions.Builder()
-                    .setEnabledMdkTargets(setOf(eyeCloseHold, faceMovement))
-                    .setActionParams(
-                        eyeCloseHold,
-                        MdkOptions.HorizontalPairedHoldActionParams(
-                            thresholdRatio = { _ ->
-                                GameConfig.EYE_CLOSE_THRESHOLD
-                            },
-                            requiredMillis = { _ ->
-                                GameConfig.SHOOT_REQUIRED_MILLIS
-                            }
-                        )
-                    )
-                    .setActionParams(
-                        faceMovement,
-                        MdkOptions.MovementActionParams(
-                            blinkThresholdRatio = { _ ->
-                                GameConfig.EYE_CLOSE_THRESHOLD
-                            },
-                            sensitivityFactor = {
-                                when (it) {
-                                    MdkSide.Axis.Horizontal -> GameConfig.FACE_MOVEMENT_SENSITIVITY_HORIZONTAL
-                                    MdkSide.Axis.Vertical -> GameConfig.FACE_MOVEMENT_SENSITIVITY_VERTICAL
+            // MDK camera view - only shown when permission is granted
+            if (cameraPermissionState.isGranted) {
+                MdkView(
+                    MdkOptions.Builder()
+                        .setEnabledMdkTargets(setOf(eyeCloseHold, faceMovement))
+                        .setActionParams(
+                            eyeCloseHold,
+                            MdkOptions.HorizontalPairedHoldActionParams(
+                                thresholdRatio = { _ ->
+                                    GameConfig.EYE_CLOSE_THRESHOLD
+                                },
+                                requiredMillis = { _ ->
+                                    GameConfig.SHOOT_REQUIRED_MILLIS
                                 }
-                            }
-                        )
-                    )
-                    .setListener {
-                        // update face movement for reticle position
-                        val movement = faceMovement.currentState()
-                        viewModel.handleIntent(
-                            DuckHuntIntent.UpdateReticlePosition(
-                                normalizedX = movement.x,
-                                normalizedY = movement.y
                             )
                         )
+                        .setActionParams(
+                            faceMovement,
+                            MdkOptions.MovementActionParams(
+                                blinkThresholdRatio = { _ ->
+                                    GameConfig.EYE_CLOSE_THRESHOLD
+                                },
+                                sensitivityFactor = {
+                                    when (it) {
+                                        MdkSide.Axis.Horizontal -> GameConfig.FACE_MOVEMENT_SENSITIVITY_HORIZONTAL
+                                        MdkSide.Axis.Vertical -> GameConfig.FACE_MOVEMENT_SENSITIVITY_VERTICAL
+                                    }
+                                }
+                            )
+                        )
+                        .setListener {
+                            // update face movement for reticle position
+                            val movement = faceMovement.currentState()
+                            viewModel.handleIntent(
+                                DuckHuntIntent.UpdateReticlePosition(
+                                    normalizedX = movement.x,
+                                    normalizedY = movement.y
+                                )
+                            )
 
-                        //handle eye close for shooting
-                        when (eyeCloseHold.currentState()) {
-                            is MdkResult.ScalarActionState.Start -> {
-                                viewModel.handleIntent(DuckHuntIntent.Shoot)
+                            //handle eye close for shooting
+                            when (eyeCloseHold.currentState()) {
+                                is MdkResult.ScalarActionState.Start -> {
+                                    viewModel.handleIntent(DuckHuntIntent.Shoot)
+                                }
+                                else -> {}
                             }
-                            else -> {}
                         }
-                    }
-                    .build(),
-                modifier = Modifier
-                    .size(1.dp)
-                    .alpha(0f)
-            )
+                        .build(),
+                    modifier = Modifier
+                        .size(1.dp)
+                        .alpha(0f)
+                )
+            }
 
             //Game UI based on state
             when (state.gameState) {
                 GameState.MENU -> {
                     MenuScreen(
                         onStartGame = {
-                            viewModel.handleIntent(DuckHuntIntent.StartGame)
+                            // Check camera permission before starting game
+                            if (cameraPermissionState.isGranted) {
+                                viewModel.handleIntent(DuckHuntIntent.StartGame)
+                            } else {
+                                // Request permission and show toast
+                                cameraPermissionState.requestPermission { result ->
+                                    when (result) {
+                                        PermissionState.GRANTED -> {
+                                            viewModel.handleIntent(DuckHuntIntent.StartGame)
+                                        }
+                                        PermissionState.DENIED, PermissionState.PERMANENTLY_DENIED -> {
+                                            toastManager.showLong("Camera permission is required to play the game")
+                                            cameraPermissionState.openAppSettings()
+                                        }
+                                        else -> {}
+                                    }
+                                }
+                            }
                         }
                     )
                 }
