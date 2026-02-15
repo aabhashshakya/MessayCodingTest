@@ -29,7 +29,7 @@ object GameConfig {
 
     //MDK Configuration
     const val EYE_CLOSE_THRESHOLD = 0.8f
-    const val SHOOT_REQUIRED_MILLIS = 50L
+    const val SHOOT_REQUIRED_MILLIS = 20L
     const val FACE_MOVEMENT_SENSITIVITY_HORIZONTAL = 0.7f
     const val FACE_MOVEMENT_SENSITIVITY_VERTICAL = 0.9f
 }

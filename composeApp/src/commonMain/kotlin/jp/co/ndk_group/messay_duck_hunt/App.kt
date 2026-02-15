@@ -124,7 +124,7 @@ fun App() {
                             faceMovement,
                             MdkOptions.MovementActionParams(
                                 blinkThresholdRatio = { _ ->
-                                    GameConfig.EYE_CLOSE_THRESHOLD
+                                    1f
                                 },
                                 sensitivityFactor = {
                                     when (it) {
