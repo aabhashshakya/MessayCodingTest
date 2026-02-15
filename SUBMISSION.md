@@ -21,7 +21,7 @@ I've implemented a hands-free Duck Hunt game (inspired from the classic Duck Hun
 - **Multiple Levels**: 5 levels with increasing baseline difficulty
 - **Statistics Tracking**: Score, accuracy, hits, misses
 
-###Limitations
+### Limitations
 **The iOS environment is set up and the app runs on the simulator, but it crashes when accessing camera features. The crash appears to originate from the MDK SDK, likely due to the simulator’s lack of camera support. I don’t currently have a physical iOS device to test this on real hardware. So I currently have no idea if it runs propery on iOS.**
 
 **Thank you for reviewing my submission!** 
