@@ -10,4 +10,7 @@ sealed interface DuckHuntIntent {
     data class UpdateDuckPosition(val deltaTime: Long) : DuckHuntIntent
     data object DuckEscaped : DuckHuntIntent
     data object SpawnNextDuck : DuckHuntIntent
+
+    data object QuitToMenu : DuckHuntIntent
+
 }

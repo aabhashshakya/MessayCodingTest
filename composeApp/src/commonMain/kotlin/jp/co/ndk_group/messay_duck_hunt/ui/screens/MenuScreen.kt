@@ -68,7 +68,8 @@ fun MenuScreen(
             // Title
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(0.dp)
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+                modifier = Modifier.offset(y= (-10).dp)
             ) {
                 Text(
                     text = "DUCK",

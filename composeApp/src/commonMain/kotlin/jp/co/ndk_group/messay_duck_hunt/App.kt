@@ -1,15 +1,32 @@
 package jp.co.ndk_group.messay_duck_hunt
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.co.ndk_group.messay_duck_hunt.constants.GameConfig
 import jp.co.ndk_group.messay_duck_hunt.domain.models.GameState
@@ -23,6 +40,8 @@ import jp.co.ndk_group.mdk.MdkTarget
 import jp.co.ndk_group.mdk.MdkView
 import jp.co.ndk_group.mdk.entity.MdkSide
 import jp.co.ndk_group.messay_duck_hunt.core.sound.createAudioPlayer
+import jp.co.ndk_group.messay_duck_hunt.core.utils.BackHandler
+import jp.co.ndk_group.messay_duck_hunt.ui.dialogs.QuitGameDialog
 import jp.co.ndk_group.messay_duck_hunt.ui.screens.MenuScreen
 import jp.co.ndk_group.messay_duck_hunt.ui.screens.RoundCompleteScreen
 import kotlinx.coroutines.delay
@@ -37,10 +56,17 @@ fun App() {
     val state = viewModel.state
     val hapticFeedback = LocalHapticFeedback.current
 
-    // MDK targets
-    val eyeCloseHold = remember { MdkTarget.EyeCloseHold(MdkSide.Both) } //both eyes should be closed ??? not sure
+    //Dialog state
+    var showQuitDialog by remember { mutableStateOf(false) }
+
+    //MDK targets
+    val eyeCloseHold = remember { MdkTarget.EyeCloseHold(MdkSide.Both) }
     val faceMovement = remember { MdkTarget.FaceMovement }
 
+    //Back press handler
+    BackHandler(enabled = state.gameState != GameState.MENU) {
+        showQuitDialog = true
+    }
 
     //collecting and playing effects
     LaunchedEffect(Unit) {
@@ -84,24 +110,22 @@ fun App() {
                     .setActionParams(
                         eyeCloseHold,
                         MdkOptions.HorizontalPairedHoldActionParams(
-
                             thresholdRatio = { _ ->
-                                //how much user has to squint their eyes to be detected as eyes closed
-                                GameConfig.EYE_CLOSE_THRESHOLD },
+                                GameConfig.EYE_CLOSE_THRESHOLD
+                            },
                             requiredMillis = { _ ->
-                                //min duration to detect eyes closed event
-                                GameConfig.SHOOT_REQUIRED_MILLIS }
+                                GameConfig.SHOOT_REQUIRED_MILLIS
+                            }
                         )
                     )
                     .setActionParams(
                         faceMovement,
                         MdkOptions.MovementActionParams(
                             blinkThresholdRatio = { _ ->
-                                //if user squits their eyes more than the threshold it is considered as blink/eyes closed, so the face movement is not recorded ???
-                                GameConfig.EYE_CLOSE_THRESHOLD },
+                                GameConfig.EYE_CLOSE_THRESHOLD
+                            },
                             sensitivityFactor = {
                                 when (it) {
-                                    //how responsive the target/reticle is to even the minor face movements
                                     MdkSide.Axis.Horizontal -> GameConfig.FACE_MOVEMENT_SENSITIVITY_HORIZONTAL
                                     MdkSide.Axis.Vertical -> GameConfig.FACE_MOVEMENT_SENSITIVITY_VERTICAL
                                 }
@@ -121,10 +145,8 @@ fun App() {
                         //handle eye close for shooting
                         when (eyeCloseHold.currentState()) {
                             is MdkResult.ScalarActionState.Start -> {
-                                //start means as soon as user closes their eyes
                                 viewModel.handleIntent(DuckHuntIntent.Shoot)
                             }
-
                             else -> {}
                         }
                     }
@@ -164,8 +186,20 @@ fun App() {
                     )
                 }
             }
+
+            // Quit Game Dialog
+            if (showQuitDialog) {
+                QuitGameDialog(
+                    onDismiss = { showQuitDialog = false },
+                    onQuit = {
+                        showQuitDialog = false
+                        viewModel.handleIntent(DuckHuntIntent.QuitToMenu)
+                    }
+                )
+            }
         }
     }
+
     //release audio player when app is disposed
     DisposableEffect(Unit) {
         onDispose {

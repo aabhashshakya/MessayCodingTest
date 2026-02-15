@@ -35,7 +35,6 @@ class DuckHuntViewModel : ViewModel() {
     val effects: Flow<DuckHuntEffect> = _effects.receiveAsFlow()
 
     private var duckIdCounter = 0
-    private var featherIdCounter = 0
 
 
     fun handleIntent(intent: DuckHuntIntent) {
@@ -49,10 +48,23 @@ class DuckHuntViewModel : ViewModel() {
                 intent.normalizedY
             )
 
+
             is DuckHuntIntent.UpdateDuckPosition -> updateDuckPosition(intent.deltaTime)
             is DuckHuntIntent.DuckEscaped -> duckEscaped()
             is DuckHuntIntent.SpawnNextDuck -> spawnNextDuck()
+            is DuckHuntIntent.QuitToMenu -> quitToMenu()
+
         }
+    }
+
+    private fun quitToMenu() {
+        // Reset counters
+        duckIdCounter = 0
+
+        //Reset to initial state with MENU game state
+        state = DuckHuntState.initial().copy(
+            gameState = GameState.MENU
+        )
     }
 
     private fun startGame() {
@@ -64,7 +76,6 @@ class DuckHuntViewModel : ViewModel() {
 
     private fun restartGame() {
         duckIdCounter = 0
-        featherIdCounter = 0
         startGame()
     }
 
