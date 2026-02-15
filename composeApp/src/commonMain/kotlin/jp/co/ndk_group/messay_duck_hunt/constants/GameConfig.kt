@@ -23,9 +23,9 @@ object GameConfig {
 
     //Levels
     const val LEVELS = 5
-    fun getLevelSpeedMultiplier(level: Int): Float = 1f + (level - 1) * 0.3f
+    fun getLevelSpeedMultiplier(level: Int): Float = 1f + (level - 1) * 0.35f
     fun getLevelDurationMultiplier(level: Int): Float = 1f - (level - 1) * 0.15f
-    fun getLevelHitboxMultiplier(level: Int): Float = 1f - (level - 1) * 0.1f
+    fun getLevelHitboxMultiplier(level: Int): Float = 1f - (level - 1) * 0.05f
 
     //MDK Configuration
     const val EYE_CLOSE_THRESHOLD = 0.8f

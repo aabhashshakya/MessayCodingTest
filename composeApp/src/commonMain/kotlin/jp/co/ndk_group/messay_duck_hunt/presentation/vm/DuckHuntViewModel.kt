@@ -169,7 +169,7 @@ class DuckHuntViewModel : ViewModel() {
 
         // Calculate score based on difficulty
         val difficultyBonus =
-            state.difficulty.successfulHits * GameConfig.BONUS_POINTS_PER_DIFFICULTY
+            (state.difficulty.level-1) * GameConfig.BONUS_POINTS_PER_DIFFICULTY
         val points = GameConfig.BASE_POINTS  + difficultyBonus
 
 
