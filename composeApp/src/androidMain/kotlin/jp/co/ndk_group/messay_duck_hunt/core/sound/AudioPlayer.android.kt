@@ -23,21 +23,23 @@ actual class AudioPlayer(private val context: Context) {
         )
         .build()
 
+    init {
+        // Set the listener once during initialization
+        soundPool.setOnLoadCompleteListener { pool, soundId, status ->
+            if (status == 0) {
+                pool.play(soundId, 1f, 1f, 1, 0, 1f)
+            }
+        }
+    }
+
     actual fun playSound(uri: String) {
         val assetPath = uri.substringAfter("file:///android_asset/")
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val afd: AssetFileDescriptor = context.assets.openFd(assetPath)
-
-                val soundId = soundPool.load(afd, 1)
-
-                soundPool.setOnLoadCompleteListener { pool, id, status ->
-                    if (status == 0 && id == soundId) {
-                        pool.play(id, 1f, 1f, 1, 0, 1f)
-                    }
-                    afd.close()
-                }
+                soundPool.load(afd, 1)
+                afd.close()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
