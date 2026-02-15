@@ -44,7 +44,11 @@ class DuckHuntViewModel : ViewModel() {
             is DuckHuntIntent.RestartGame -> restartGame()
             is DuckHuntIntent.NextLevel -> nextLevel()
             is DuckHuntIntent.Shoot -> shoot()
-            is DuckHuntIntent.UpdateReticlePosition -> updateReticlePosition(intent.normalizedX, intent.normalizedY)
+            is DuckHuntIntent.UpdateReticlePosition -> updateReticlePosition(
+                intent.normalizedX,
+                intent.normalizedY
+            )
+
             is DuckHuntIntent.UpdateDuckPosition -> updateDuckPosition(intent.deltaTime)
             is DuckHuntIntent.DuckEscaped -> duckEscaped()
             is DuckHuntIntent.SpawnNextDuck -> spawnNextDuck()
@@ -114,6 +118,12 @@ class DuckHuntViewModel : ViewModel() {
 
         val duck = state.currentDuck ?: return
 
+        //if we shot the same duck multiple times, dont count as the duck being hit
+        if (!duck.isAlive || duck.isFalling) {
+            handleMiss()
+            return
+        }
+
         // Check collision
         if (checkCollision(state.reticlePosition, duck)) {
             // Hit!
@@ -149,8 +159,10 @@ class DuckHuntViewModel : ViewModel() {
         sendEffect(DuckHuntEffect.VibrateOnHit)
 
         // Calculate score based on difficulty
-        val speedBonus = (state.difficulty.duckSpeed / GameConfig.INITIAL_DUCK_SPEED).toInt() * GameConfig.SPEED_BONUS_MULTIPLIER
-        val difficultyBonus = state.difficulty.successfulHits * GameConfig.BONUS_POINTS_PER_DIFFICULTY
+        val speedBonus =
+            (state.difficulty.duckSpeed / GameConfig.INITIAL_DUCK_SPEED).toInt() * GameConfig.SPEED_BONUS_MULTIPLIER
+        val difficultyBonus =
+            state.difficulty.successfulHits * GameConfig.BONUS_POINTS_PER_DIFFICULTY
         val points = GameConfig.BASE_POINTS + speedBonus + difficultyBonus
 
 
@@ -290,14 +302,17 @@ class DuckHuntViewModel : ViewModel() {
                 normalizedSpeed * 0.7f,
                 -normalizedSpeed * 0.7f
             )
+
             DuckDirection.DIAGONAL_UP_LEFT -> Offset(
                 -normalizedSpeed * 0.7f,
                 -normalizedSpeed * 0.7f
             )
+
             DuckDirection.DIAGONAL_DOWN_RIGHT -> Offset(
                 normalizedSpeed * 0.7f,
                 normalizedSpeed * 0.5f
             )
+
             DuckDirection.DIAGONAL_DOWN_LEFT -> Offset(
                 -normalizedSpeed * 0.7f,
                 normalizedSpeed * 0.5f
