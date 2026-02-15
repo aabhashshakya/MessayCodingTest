@@ -20,8 +20,7 @@ object GameConfig {
     //Scoring
     const val BASE_POINTS = 100
     const val BONUS_POINTS_PER_DIFFICULTY = 50
-    const val SPEED_BONUS_MULTIPLIER = 2
-    
+
     //Levels
     const val LEVELS = 5
     fun getLevelSpeedMultiplier(level: Int): Float = 1f + (level - 1) * 0.3f

@@ -56,7 +56,7 @@ class DuckHuntViewModel : ViewModel() {
     }
 
     private fun startGame() {
-        state = DuckHuntState.Companion.initial().copy(
+        state = DuckHuntState.initial().copy(
             gameState = GameState.PLAYING
         )
         spawnNextDuck()
@@ -69,9 +69,9 @@ class DuckHuntViewModel : ViewModel() {
     }
 
     private fun nextLevel() {
-        // Check if player achieved at least 50% accuracy
-        val totalDucks = state.stats.ducksHit + state.stats.ducksMissed
-        val accuracy = if (totalDucks > 0) (state.stats.ducksHit * 100) / totalDucks else 0
+        // Check if player achieved at least 50% accuracy for THIS ROUND
+        val totalDucks = state.stats.ducksHitThisRound + state.stats.ducksMissedThisRound
+        val accuracy = if (totalDucks > 0) (state.stats.ducksHitThisRound * 100) / totalDucks else 0
 
         if (accuracy < 50) {
             // Failed to meet requirement, game over
@@ -101,7 +101,10 @@ class DuckHuntViewModel : ViewModel() {
                 gameState = GameState.PLAYING,
                 stats = state.stats.copy(
                     currentLevel = newLevel,
-                    ducksRemainingInRound = GameConfig.DUCKS_PER_ROUND
+                    ducksRemainingInRound = GameConfig.DUCKS_PER_ROUND,
+                    // Reset round-specific stats for new round
+                    ducksHitThisRound = 0,
+                    ducksMissedThisRound = 0
                 ),
                 difficulty = newDifficulty
             )
@@ -121,6 +124,12 @@ class DuckHuntViewModel : ViewModel() {
         //if we shot the same duck multiple times, dont count as the duck being hit
         if (!duck.isAlive || duck.isFalling) {
             handleMiss()
+            // Prevent rapid fire
+            state = state.copy(canShoot = false)
+            viewModelScope.launch {
+                delay(100)
+                state = state.copy(canShoot = true)
+            }
             return
         }
 
@@ -159,17 +168,16 @@ class DuckHuntViewModel : ViewModel() {
         sendEffect(DuckHuntEffect.VibrateOnHit)
 
         // Calculate score based on difficulty
-        val speedBonus =
-            (state.difficulty.duckSpeed / GameConfig.INITIAL_DUCK_SPEED).toInt() * GameConfig.SPEED_BONUS_MULTIPLIER
         val difficultyBonus =
             state.difficulty.successfulHits * GameConfig.BONUS_POINTS_PER_DIFFICULTY
-        val points = GameConfig.BASE_POINTS + speedBonus + difficultyBonus
+        val points = GameConfig.BASE_POINTS  + difficultyBonus
 
 
-        // Update state
+        // Update state - track both round-specific and total stats
         val newStats = state.stats.copy(
             score = state.stats.score + points,
-            ducksHit = state.stats.ducksHit + 1,
+            ducksHitThisRound = state.stats.ducksHitThisRound + 1,
+            totalDucksHit = state.stats.totalDucksHit + 1,
             ducksRemainingInRound = state.stats.ducksRemainingInRound - 1
         )
 
@@ -212,8 +220,10 @@ class DuckHuntViewModel : ViewModel() {
 
         sendEffect(DuckHuntEffect.PlayDuckLaughSound)
 
+        // Update both round-specific and total stats
         val newStats = state.stats.copy(
-            ducksMissed = state.stats.ducksMissed + 1,
+            ducksMissedThisRound = state.stats.ducksMissedThisRound + 1,
+            totalDucksMissed = state.stats.totalDucksMissed + 1,
             ducksRemainingInRound = state.stats.ducksRemainingInRound - 1
         )
 

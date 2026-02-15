@@ -31,8 +31,9 @@ fun RoundCompleteScreen(
     onRestart: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val totalDucks = state.stats.ducksHit + state.stats.ducksMissed
-    val accuracy = if (totalDucks > 0) (state.stats.ducksHit * 100) / totalDucks else 0
+    // Use round-specific stats for accuracy calculation
+    val totalDucks = state.stats.ducksHitThisRound + state.stats.ducksMissedThisRound
+    val accuracy = if (totalDucks > 0) (state.stats.ducksHitThisRound * 100) / totalDucks else 0
     val passed = accuracy >= 50
 
     Box(
@@ -67,19 +68,38 @@ fun RoundCompleteScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            //stats
+            // Round stats
             Column(
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatText("Score", state.stats.score.toString(), Color(0xFFFAD000))
-                StatText("Ducks Hit", state.stats.ducksHit.toString(), Color(0xFF228B22))
-                StatText("Ducks Missed", state.stats.ducksMissed.toString(), Color(0xFFFF4444))
+
+                // Show this round's stats
+                Text(
+                    text = "This Round:",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black.copy(alpha = 0.5f)
+                )
+                StatText("Ducks Hit", state.stats.ducksHitThisRound.toString(), Color(0xFF228B22))
+                StatText("Ducks Missed", state.stats.ducksMissedThisRound.toString(), Color(0xFFFF4444))
                 StatText(
                     "Accuracy",
                     "$accuracy%",
                     if (passed) Color(0xFF228B22) else Color(0xFFFF4444)
                 )
+
+                // Optional: Show total stats
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Total:",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black.copy(alpha = 0.5f)
+                )
+                StatText("Total Hits", state.stats.totalDucksHit.toString(), Color(0xFF228B22))
+                StatText("Total Misses", state.stats.totalDucksMissed.toString(), Color(0xFFFF4444))
             }
 
             Spacer(modifier = Modifier.height(12.dp))

@@ -22,8 +22,10 @@ data class DifficultySettings(
 
 data class GameStats(
     val score: Int = 0,
-    val ducksHit: Int = 0,
-    val ducksMissed: Int = 0,
+    val ducksHitThisRound: Int = 0,  //Reset each round
+    val ducksMissedThisRound: Int = 0,  //Reset each round
+    val totalDucksHit: Int = 0,  //Accumulated across all rounds
+    val totalDucksMissed: Int = 0,  //Accumulated across all rounds
     val currentLevel: Int = 1,
     val ducksRemainingInRound: Int = GameConfig.DUCKS_PER_ROUND,
     val totalDucksInRound: Int = GameConfig.DUCKS_PER_ROUND
