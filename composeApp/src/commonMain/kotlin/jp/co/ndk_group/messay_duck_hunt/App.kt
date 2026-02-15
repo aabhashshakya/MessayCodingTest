@@ -113,9 +113,11 @@ fun App() {
                             eyeCloseHold,
                             MdkOptions.HorizontalPairedHoldActionParams(
                                 thresholdRatio = { _ ->
+                                    //higher value nears to eyes having to be fully closed to trigger action
                                     GameConfig.EYE_CLOSE_THRESHOLD
                                 },
                                 requiredMillis = { _ ->
+                                    //how long eyes have to be closed to register the action
                                     GameConfig.SHOOT_REQUIRED_MILLIS
                                 }
                             )
@@ -124,15 +126,20 @@ fun App() {
                             faceMovement,
                             MdkOptions.MovementActionParams(
                                 blinkThresholdRatio = { _ ->
+                                    //higher value registers face movement even if eyes are closed
                                     1f
                                 },
                                 sensitivityFactor = {
+                                    //how much face has to move to register movement on screen
                                     when (it) {
                                         MdkSide.Axis.Horizontal -> GameConfig.FACE_MOVEMENT_SENSITIVITY_HORIZONTAL
                                         MdkSide.Axis.Vertical -> GameConfig.FACE_MOVEMENT_SENSITIVITY_VERTICAL
                                     }
-                                }
-                            )
+                                },
+                                //smooths out the reticle
+                                stabilityThresholdFactor = { _ -> 0.9f },
+
+                                )
                         )
                         .setListener {
                             // update face movement for reticle position
@@ -149,6 +156,7 @@ fun App() {
                                 is MdkResult.ScalarActionState.Start -> {
                                     viewModel.handleIntent(DuckHuntIntent.Shoot)
                                 }
+
                                 else -> {}
                             }
                         }
@@ -174,10 +182,12 @@ fun App() {
                                         PermissionState.GRANTED -> {
                                             viewModel.handleIntent(DuckHuntIntent.StartGame)
                                         }
+
                                         PermissionState.DENIED, PermissionState.PERMANENTLY_DENIED -> {
                                             toastManager.showLong("Camera permission is required to play the game")
                                             cameraPermissionState.openAppSettings()
                                         }
+
                                         else -> {}
                                     }
                                 }
